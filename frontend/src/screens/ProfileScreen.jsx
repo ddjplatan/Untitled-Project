@@ -1,14 +1,14 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Form, Button, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { Form, Button } from "react-bootstrap";
 import FormContainer from "../components/FormContainer";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
-import { useRegisterMutation } from "../slices/usersApiSlice";
 import { setCredentials } from "../slices/authSlice";
+import { useUpdateUserMutation } from "../slices/usersApiSlice";
 
-const RegisterScreen = () => {
+const ProfileScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,20 +17,29 @@ const RegisterScreen = () => {
   const [lastname, setLastname] = useState("");
   const [phonenumber, setPhonenumber] = useState("");
   const [gender, setGender] = useState("");
-  const [birthday, setBirthday] = useState("");
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { userInfo } = useSelector((state) => state.auth);
 
-  const [register, { isLoading }] = useRegisterMutation();
+  const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
   useEffect(() => {
-    if (userInfo) {
-      navigate("/");
-    }
-  }, [navigate, userInfo]);
+    setFirstname(userInfo.firstname);
+    setMiddlename(userInfo.middlename);
+    setLastname(userInfo.lastname);
+    setEmail(userInfo.email);
+    setPhonenumber(userInfo.phonenumber);
+    setGender(userInfo.gender);
+  }, [
+    userInfo.setFirstname,
+    userInfo.setMiddlename,
+    userInfo.setLastname,
+    userInfo.setEmail,
+    userInfo.setPhonenumber,
+    userInfo.setGender,
+  ]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -38,26 +47,27 @@ const RegisterScreen = () => {
       toast.error("Password do not match");
     } else {
       try {
-        const res = await register({
-          email,
-          password,
+        const res = await updateProfile({
+          _id: userInfo._id,
           firstname,
           middlename,
           lastname,
+          email,
+          password,
           phonenumber,
           gender,
-          birthday,
         }).unwrap();
         dispatch(setCredentials({ ...res }));
         navigate("/");
+        toast.success("Profile updated.");
       } catch (err) {
-        toast.error(err?.data?.message || err.error)
+        toast.error(err?.data?.message || err.error);
       }
     }
   };
   return (
     <FormContainer>
-      <h1>Sign up</h1>
+      <h1>Update Profile</h1>
       <Form onSubmit={submitHandler}>
         <Form.Group className="my-2" controlId="email">
           <Form.Label>Email Address</Form.Label>
@@ -132,28 +142,13 @@ const RegisterScreen = () => {
             <option value="Female">Female</option>
           </Form.Select>
         </Form.Group>
-        <Form.Group className="my-2" controlId="birthday">
-          <Form.Label>Date of Birth</Form.Label>
-          <Form.Control
-            type="date"
-            value={birthday}
-            onChange={(e) => setBirthday(e.target.value)}
-          ></Form.Control>
-        </Form.Group>
-
-        { isLoading && <Loader />}
-
+        {isLoading && <Loader />}
         <Button type="submit" variant="primary" className="mt-3">
-          Sign up
+          Update
         </Button>
-        <Row className="py-3">
-          <Col>
-            Already have an account? <Link to="/login">Sign in here.</Link>
-          </Col>
-        </Row>
       </Form>
     </FormContainer>
   );
 };
 
-export default RegisterScreen;
+export default ProfileScreen;

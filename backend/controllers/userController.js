@@ -17,6 +17,8 @@ const authUser = asyncHandler(async (req, res) => {
       middlename: user.middlename,
       lastname: user.lastname,
       email: user.email,
+      phonenumber: user.phonenumber,
+      gender: user.gender,
     });
   } else {
     res.status(401);
@@ -65,6 +67,8 @@ const registerUser = asyncHandler(async (req, res) => {
       middlename: user.middlename,
       lastname: user.lastname,
       email: user.email,
+      phonenumber: user.phonenumber,
+      gender: user.gender
     });
   } else {
     res.status(400);
@@ -92,10 +96,12 @@ const logoutUser = asyncHandler(async (req, res) => {
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = {
     _id: req.user._id,
-    email: req.user.email,
-    firstname: req.user.firstname,
-    middlename: req.user.middlename,
-    lastname: req.user.lastname,
+    firstname: user.firstname,
+    middlename: user.middlename,
+    lastname: user.lastname,
+    email: user.email,
+    phonenumber: user.phonenumber,
+    gender: user.gender
   }
 
   res.status(200).json(user);
@@ -108,10 +114,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
-    user.email = req.body.email || user.email;
     user.firstname = req.body.firstname || user.firstname;
     user.middlename = req.body.middlename || user.middlename;
     user.lastname = req.body.lastname || user.lastname;
+    user.email = req.body.email || user.email;
+    user.phonenumber = req.body.phonenumber || user.phonenumber;
+    user.gender = req.body.gender || user.gender;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -123,6 +131,9 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       firstname: updatedUser.firstname,
       middlename: updatedUser.middlename,
       lastname: updatedUser.lastname,
+      email: updatedUser.email,
+      phonenumber: updatedUser.phonenumber,
+      gender: updatedUser.gender
     });
   } else {
     res.status(404);
